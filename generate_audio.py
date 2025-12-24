@@ -1,30 +1,34 @@
 import os
+import json
 from pathlib import Path
-from gtts import gTTS  # אם רוצים TTS חינמי מבוסס Google
+from gtts import gTTS
 
-# תיקיית הפלט של הקבצים
+# תיקיית הפלט
 OUTPUT_DIR = Path("audio")
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-# רשימת מילים ומשפטים לדוגמה
-words_and_sentences = [
-    {"text": "Pan", "lang": "en"},
-    {"text": "Tan", "lang": "en"},
-    {"text": "אני אוהב ללמוד", "lang": "he"},
-    {"text": "בוא נשחק כדור", "lang": "he"},
-    # הוסף כאן את כל המילים והמשפטים שאתה צריך
-]
+# קריאת רשימת מילים/משפטים מקובץ JSON
+WORDS_FILE = Path("words.json")
+if not WORDS_FILE.exists():
+    raise FileNotFoundError(f"{WORDS_FILE} לא נמצא!")
+
+with open(WORDS_FILE, "r", encoding="utf-8") as f:
+    words_and_sentences = json.load(f)
 
 for entry in words_and_sentences:
     text = entry["text"]
-    lang = entry["lang"]
-    
-    # יצירת שם קובץ מתאים
-    filename = OUTPUT_DIR / f"{text.replace(' ', '_')}_{lang}.mp3"
-    
+    lang = entry.get("lang", "en")  # ברירת מחדל: אנגלית
+
+    # יצירת שם קובץ תקין
+    safe_name = "".join(c if c.isalnum() else "_" for c in text)
+    filename = OUTPUT_DIR / f"{safe_name}_{lang}.mp3"
+
     # יצירת קובץ אודיו
-    tts = gTTS(text=text, lang=lang)
-    tts.save(str(filename))
-    print(f"Saved: {filename}")
+    try:
+        tts = gTTS(text=text, lang=lang)
+        tts.save(str(filename))
+        print(f"Saved: {filename}")
+    except Exception as e:
+        print(f"Error generating audio for '{text}': {e}")
 
 print("All audio files generated!")
