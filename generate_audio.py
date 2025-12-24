@@ -3,8 +3,9 @@ import json
 from pathlib import Path
 from gtts import gTTS
 
-OUTPUT_DIR = Path("main/audio")
-OUTPUT_DIR.mkdir(exist_ok=True)
+OUTPUT_DIR = Path("audio")
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 
 WORDS_FILE = Path("main/words.json")
 if not WORDS_FILE.exists():
