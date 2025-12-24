@@ -26,4 +26,5 @@ jobs:
 
       - name: Generate audio
         run: |
-          python main/generate_audio.py
+          python generate_audio.py
+
