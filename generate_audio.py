@@ -17,7 +17,7 @@ new_files_count = 0
 
 # דוגמה לרשימת קולות לפי שפה (ניתן למלא לפי הפלט של `python -m edge_tts --list-voices`)
 VOICE_LIST = {
-    "he": ["he-IL-AsafNeural", "he-IL-HilaNeural"],  # fallback עברית
+    "he": ["he-IL-HilaNeural", "he-IL-AvriNeural"],  # fallback עברית
     "en": ["en-US-JennyNeural", "en-US-GuyNeural"],
     "es": ["es-ES-ElviraNeural", "es-ES-AlvaroNeural"],
     # הוסף שפות/קולות נוספים לפי הצורך
