@@ -6,6 +6,7 @@ on:
     - cron: '0 3 * * *'
   workflow_dispatch: # אפשרות להרצה ידנית
 
+
 jobs:
   generate-audio:
     runs-on: ubuntu-latest
@@ -27,4 +28,3 @@ jobs:
       - name: Generate audio
         run: |
           python generate_audio.py
-
