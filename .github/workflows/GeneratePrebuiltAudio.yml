@@ -1,8 +1,10 @@
-name: Generate Prebuilt Audio (Hebrew + English)
+name: Generate Audio Daily
+
 on:
   schedule:
-    - cron: '0 2 * * *'   # פעם ביום
-  workflow_dispatch:
+    # ירוץ כל יום בשעה 03:00 UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch: # אפשרות להרצה ידנית
 
 jobs:
   generate-audio:
@@ -10,25 +12,18 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
       - name: Install dependencies
         run: |
-          pip install gtts pandas pyyaml
+          python -m pip install --upgrade pip
+          pip install gTTS
 
-      - name: Generate audio files
+      - name: Generate audio
         run: |
-          generate_audio.py
-
-      - name: Commit and push audio files
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add audio/
-          git commit -m "Auto-generate audio files" || echo "No changes"
-          git push
+          python main/generate_audio.py
