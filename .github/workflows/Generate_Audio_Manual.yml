@@ -1,9 +1,8 @@
-name: Generate Audio Manual
+name: Generate TTS Audio
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -21,9 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyttsx3 pydub
-          sudo apt update
-          sudo apt install -y espeak libespeak1 ffmpeg
+          pip install edge-tts
 
       - name: Run TTS script
         run: python generate_audio.py
