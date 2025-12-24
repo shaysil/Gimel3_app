@@ -10,7 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # כדי שנוכל לדחוף branches חדשים
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -22,19 +25,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install edge-tts
 
-      - name: Run TTS script
+      - name: Generate audio
         run: python generate_audio.py
 
-      - name: Upload audio as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: audio-files
-          path: audio/
-          
-      - name: Push audio files to repo
+      - name: Commit and push audio files to audio-output branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # צור branch אם לא קיים
+          if git rev-parse --verify audio-output; then
+              git checkout audio-output
+          else
+              git checkout -b audio-output
+          fi
+
           git add audio/
-          git commit -m "Add generated audio files"
+          git commit -m "Add generated audio files" || echo "No changes to commit"
           git push origin audio-output
