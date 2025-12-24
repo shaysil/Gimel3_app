@@ -30,3 +30,11 @@ jobs:
         with:
           name: audio-files
           path: audio/
+          
+      - name: Push audio files to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add audio/
+          git commit -m "Add generated audio files"
+          git push origin audio-output
