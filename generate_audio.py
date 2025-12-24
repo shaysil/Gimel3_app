@@ -1,7 +1,7 @@
 import asyncio
 import json
 from pathlib import Path
-import edge_tts  # edge-tts library
+import edge_tts
 
 OUTPUT_DIR = Path("audio")
 OUTPUT_DIR.mkdir(exist_ok=True)
@@ -13,20 +13,34 @@ if not WORDS_FILE.exists():
 with open(WORDS_FILE, "r", encoding="utf-8") as f:
     words_and_sentences = json.load(f)
 
-async def generate_tts(text: str, voice: str, filename: Path):
-    # edge_tts Communicate – קורא לשירות ומייצר MP3
-    communicate = edge_tts.Communicate(text, voice)
-    await communicate.save(str(filename))
-
 new_files_count = 0
 
-# מיפוי שפות לקולות
-VOICE_MAP = {
-    "en": "en-US-JennyNeural",   # אנגלית
-    "he": "he-IL-AsafNeural",    # עברית (אם הקול קיים)
-    "es": "es-ES-ElviraNeural",  # ספרדית לדוגמה
-    # ניתן להוסיף שפות/קולות לפי הצורך
+# דוגמה לרשימת קולות לפי שפה (ניתן למלא לפי הפלט של `python -m edge_tts --list-voices`)
+VOICE_LIST = {
+    "he": ["he-IL-AsafNeural", "he-IL-HilaNeural"],  # fallback עברית
+    "en": ["en-US-JennyNeural", "en-US-GuyNeural"],
+    "es": ["es-ES-ElviraNeural", "es-ES-AlvaroNeural"],
+    # הוסף שפות/קולות נוספים לפי הצורך
 }
+
+async def generate_tts_with_fallback(text: str, lang: str, filename: Path):
+    voices = VOICE_LIST.get(lang, VOICE_LIST["en"])  # אם השפה לא קיימת, נשתמש באנגלית
+    last_error = None
+
+    for voice in voices:
+        try:
+            communicate = edge_tts.Communicate(text, voice)
+            await communicate.save(str(filename))
+            return True  # הצלחה
+        except Exception as e:
+            print(f"Voice '{voice}' failed: {e}")
+            last_error = e
+
+    # אם כל הקולות נכשלו
+    print(f"Failed to generate audio for '{text}' ({lang}) after trying all voices.")
+    if last_error:
+        print(f"Last error: {last_error}")
+    return False
 
 async def main():
     global new_files_count
@@ -34,7 +48,6 @@ async def main():
     for entry in words_and_sentences:
         text = entry["text"]
         lang = entry.get("lang", "en").lower()
-        voice = VOICE_MAP.get(lang, VOICE_MAP["en"])  # אם לא נמצא – ברירת מחדל לאנגלית
 
         safe_name = "".join(c if c.isalnum() else "_" for c in text)
         filename = OUTPUT_DIR / f"{safe_name}_{lang}.mp3"
@@ -43,12 +56,10 @@ async def main():
             print(f"Skipping existing file: {filename}")
             continue
 
-        try:
-            print(f"Generating: {text} ({lang}) → {filename}")
-            await generate_tts(text, voice, filename)
+        print(f"Generating: {text} ({lang}) → {filename}")
+        success = await generate_tts_with_fallback(text, lang, filename)
+        if success:
             new_files_count += 1
-        except Exception as e:
-            print(f"Error generating audio for '{text}': {e}")
 
     if new_files_count == 0:
         print("No new audio files generated.")
