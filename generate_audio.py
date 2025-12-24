@@ -7,7 +7,7 @@ OUTPUT_DIR = Path("audio")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
-WORDS_FILE = Path("main/words.json")
+WORDS_FILE = Path("words.json")
 if not WORDS_FILE.exists():
     raise FileNotFoundError(f"{WORDS_FILE} לא נמצא!")
 
