@@ -25,9 +25,4 @@ jobs:
         run: |
           python generate_audio.py
       
-      - name: Upload audio as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: audio-files
-          path: audio/
 
